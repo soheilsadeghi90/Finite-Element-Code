@@ -1,0 +1,703 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Main file</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-10"><meta name="DC.source" content="Main_file.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Main file</h1><pre class="codeinput">clear; clc;
+</pre><pre>     ----------------- I N P U T -------------------%</pre><pre class="codeinput"><span class="comment">% Commentary: In this section, the operator has to enter all required</span>
+<span class="comment">% inputs in three sub-functions: 'nodal_coordinate.m', 'ele_nodes.m' and</span>
+<span class="comment">% 'conn.m'. More descriptions on each inputs are provided on those files.</span>
+
+<span class="comment">% nodal_coordinate calls all nodal coordinates and loads</span>
+[tag_nd_orig, x_nd, y_nd, P] = nodal_coordinate();       <span class="comment">% tag_nd_orig = node tags as the operator model (It may change if meshing happens)</span>
+ele_num = [];                                            <span class="comment">% an initial values needed for non-prismatic sections</span>
+
+<span class="comment">% There are also three more inputs that have to be entered in this file</span>
+<span class="comment">% (main.m). Those are material_ID, element_type and element_prop_ID which</span>
+<span class="comment">% call different properties from the built-in libraries. Notes on libraries</span>
+<span class="comment">% are provided in each of them.</span>
+<span class="comment">% For each validation examples, corresponding inputs are prepared and the</span>
+<span class="comment">% operator just needs to uncomment them:</span>
+
+<span class="comment">% ------------ First Example ---------------</span>
+
+<span class="comment">% ele_num = 50;</span>
+<span class="comment">% material_ID = 2*ones(1,ele_num);              % Enter IDs using labels in 'material.m' (material library)</span>
+<span class="comment">% element_type = ones(1,ele_num);               % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)</span>
+<span class="comment">% element_prop_ID = 3*ones(1,ele_num);          % Enter prop_ID labels from sec_prop.m (mechanical props library)</span>
+
+<span class="comment">% ------------ Second Example --------------</span>
+
+<span class="comment">% material_ID = [1,1];                          % Enter IDs using labels in 'material.m' (material library)</span>
+<span class="comment">% element_type = [21,21];                       % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)</span>
+<span class="comment">% element_prop_ID = [4,4];                      % Enter prop_ID labels from sec_prop.m (mechanical props library)</span>
+
+<span class="comment">% ------------ Third Example ---------------</span>
+
+<span class="comment">% material_ID = [3,3,3,3,3,3,3,3,3];            % Enter IDs using labels in 'material.m' (material library)</span>
+<span class="comment">% element_type = [2,2,2,2,2,2,2,2,2];           % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)</span>
+<span class="comment">% element_prop_ID = [1,1,1,1,1,1,2,2,2];        % Enter prop_ID labels from sec_prop.m (mechanical props library)</span>
+
+<span class="comment">% ------------ Fourth Example --------------</span>
+
+<span class="comment">% material_ID = ones(13,1);                     % Enter IDs using labels in 'material.m' (material library)</span>
+<span class="comment">% element_type = 1*ones(13,1);                  % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)</span>
+<span class="comment">% element_prop_ID = 5 * ones(13,1);             % Enter prop_ID labels from sec_prop.m (mechanical props library)</span>
+
+<span class="comment">% ------------ Fifth Example ---------------</span>
+
+material_ID = [3,3,3,3];                        <span class="comment">% Enter IDs using labels in 'material.m' (material library)</span>
+element_type = [2,2,2,2];                       <span class="comment">% Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)</span>
+element_prop_ID = [2,2,2,2];                    <span class="comment">% Enter prop_ID labels from sec_prop.m (mechanical props library)</span>
+
+<span class="comment">% ------------ Sixth Example ---------------</span>
+
+<span class="comment">% material_ID = [3,3];                        % Enter IDs using labels in 'material.m' (material library)</span>
+<span class="comment">% element_type = [21,21];                       % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)</span>
+<span class="comment">% element_prop_ID = [2,2];                    % Enter prop_ID labels from sec_prop.m (mechanical props library)</span>
+
+<span class="comment">% -------------------------------------------</span>
+
+<span class="comment">% The last part is the same for all examples</span>
+
+<span class="comment">% function conn.m calls all connectivities, nodal supports and nodal displacement</span>
+[conn_o,supp,nodal_disp] = conn();
+
+<span class="comment">% print inputs up to this point:</span>
+
+disp(<span class="string">'------------------ INPUTS -----------------'</span>);
+fprintf(<span class="string">'\n\n'</span>)
+disp(<span class="string">'Nodal Coordinates:'</span>);
+fprintf(<span class="string">'\n'</span>)
+<span class="keyword">for</span> i = 1:length(tag_nd_orig)
+    disp([<span class="string">'node '</span>,num2str(i),<span class="string">' : ['</span>,num2str(x_nd(i)),<span class="string">','</span>,num2str(y_nd(i)),<span class="string">']'</span>]);
+<span class="keyword">end</span>
+fprintf(<span class="string">'\n\n'</span>)
+
+disp(<span class="string">'Connectivity:'</span>);
+fprintf(<span class="string">'\n'</span>)
+disp(<span class="string">'element i : [x1  y1  rot1  x2  y2  rot2]; 1 if connected and 0 if not'</span>)
+fprintf(<span class="string">'\n'</span>)
+<span class="keyword">for</span> i = 1:length(material_ID)
+    disp([<span class="string">'element '</span>,num2str(i),<span class="string">' : ['</span>,num2str(conn_o(i,2:7)),<span class="string">']'</span>]);
+<span class="keyword">end</span>
+fprintf(<span class="string">'\n\n'</span>)
+
+disp(<span class="string">'Constraints:'</span>);
+fprintf(<span class="string">'\n'</span>)
+disp(<span class="string">'node i contrains: [x y rot]; 1 if yes and 0 if no'</span>)
+fprintf(<span class="string">'\n'</span>)
+<span class="keyword">for</span> i = 1:length(tag_nd_orig)
+    disp([<span class="string">'node '</span>,num2str(i),<span class="string">' constraints: '</span>,num2str(supp(i,2:end))]);
+<span class="keyword">end</span>
+fprintf(<span class="string">'\n\n'</span>)
+
+disp(<span class="string">'Nodal Displacements:'</span>);
+fprintf(<span class="string">'\n'</span>)
+disp(<span class="string">'node i displacements: [dx dy drot]; enter values if any'</span>)
+fprintf(<span class="string">'\n'</span>)
+<span class="keyword">for</span> i = 1:length(tag_nd_orig)
+    disp([<span class="string">'node '</span>,num2str(i),<span class="string">' displacements: '</span>,num2str(nodal_disp(i,2:end))]);
+<span class="keyword">end</span>
+fprintf(<span class="string">'\n\n'</span>)
+
+disp(<span class="string">'Material IDs: (material definitions can be found in material.m file)'</span>);
+fprintf(<span class="string">'\n'</span>)
+disp(<span class="string">'element i material ID : ID number'</span>)
+fprintf(<span class="string">'\n'</span>)
+<span class="keyword">for</span> i = 1:length(material_ID)
+    disp([<span class="string">'element '</span>,num2str(i),<span class="string">' material ID : '</span>,num2str(material_ID(i))]);
+<span class="keyword">end</span>
+fprintf(<span class="string">'\n\n'</span>)
+
+disp(<span class="string">'Element types: (1 if BAR / 2 if TIMOSHENKO / 3 if BERNOULLI / 21 if FE TIMO LINEAR SF)'</span>);
+fprintf(<span class="string">'\n'</span>)
+disp(<span class="string">'element i type : type label'</span>)
+fprintf(<span class="string">'\n'</span>)
+<span class="keyword">for</span> i = 1:length(material_ID)
+    disp([<span class="string">'element '</span>,num2str(i),<span class="string">' type : '</span>,num2str(element_type(i))]);
+<span class="keyword">end</span>
+fprintf(<span class="string">'\n\n'</span>)
+
+disp(<span class="string">'Element Section Property ID'</span>);
+fprintf(<span class="string">'\n'</span>)
+disp(<span class="string">'element i section ID : (section definitions can be found in sec_prop.m file)'</span>)
+fprintf(<span class="string">'\n'</span>)
+<span class="keyword">for</span> i = 1:length(material_ID)
+    disp([<span class="string">'element '</span>,num2str(i),<span class="string">' section ID : '</span>,num2str(element_type(i))]);
+<span class="keyword">end</span>
+fprintf(<span class="string">'\n\n'</span>)
+
+<span class="comment">% function ele_nodes has different parts inside. 1) load start and end</span>
+<span class="comment">% nodes for each element, name elements and find lengths and angles for</span>
+<span class="comment">% each of them. 2) If Finite Elements is chosen, it meshes large elements</span>
+<span class="comment">% automatically. Notet that for meshing, a max mesh length should be</span>
+<span class="comment">% entered in the ele_nodes.m file.</span>
+
+[tag_ele,tag_nd,ele_st_nd,ele_end_nd,len_ele,ele_prop_ID,DL_ele,ele_type,MAT_ID,conn,Theta] <span class="keyword">...</span>
+    = ele_nodes(x_nd, y_nd, element_type,material_ID,conn_o,element_prop_ID);
+</pre><pre class="codeoutput">------------------ INPUTS -----------------
+
+
+Nodal Coordinates:
+
+node 1 : [0,0]
+node 2 : [500,0]
+node 3 : [750,0]
+node 4 : [1000,0]
+node 5 : [1500,0]
+
+
+Connectivity:
+
+element i : [x1  y1  rot1  x2  y2  rot2]; 1 if connected and 0 if not
+
+element 1 : [1  1  1  1  1  1]
+element 2 : [1  1  1  1  1  0]
+element 3 : [1  1  0  1  1  1]
+element 4 : [1  1  1  1  1  1]
+
+
+Constraints:
+
+node i contrains: [x y rot]; 1 if yes and 0 if no
+
+node 1 constraints: 1  1  1
+node 2 constraints: 0  1  0
+node 3 constraints: 0  0  0
+node 4 constraints: 0  1  0
+node 5 constraints: 0  1  0
+
+
+Nodal Displacements:
+
+node i displacements: [dx dy drot]; enter values if any
+
+node 1 displacements: 0  0  0
+node 2 displacements: 0  0  0
+node 3 displacements: 0  0  0
+node 4 displacements: 0  0  0
+node 5 displacements: 0  0  0
+
+
+Material IDs: (material definitions can be found in material.m file)
+
+element i material ID : ID number
+
+element 1 material ID : 3
+element 2 material ID : 3
+element 3 material ID : 3
+element 4 material ID : 3
+
+
+Element types: (1 if BAR / 2 if TIMOSHENKO / 3 if BERNOULLI / 21 if FE TIMO LINEAR SF)
+
+element i type : type label
+
+element 1 type : 2
+element 2 type : 2
+element 3 type : 2
+element 4 type : 2
+
+
+Element Section Property ID
+
+element i section ID : (section definitions can be found in sec_prop.m file)
+
+element 1 section ID : 2
+element 2 section ID : 2
+element 3 section ID : 2
+element 4 section ID : 2
+
+
+Elements Locations:
+
+element 1 connects node 1 to node 2
+element 2 connects node 2 to node 3
+element 3 connects node 3 to node 4
+element 4 connects node 4 to node 5
+
+
+
+</pre><pre>     ----------------- A N A L Y S I S -------------------%</pre><pre class="codeinput"><span class="comment">% store number of nodes and elements (it is done after meshing)</span>
+n_nd = length(tag_nd);
+n_ele = length(tag_ele);
+</pre><pre>     ------------------- C H E C K S --------------------%</pre><pre class="codeinput"><span class="comment">% check if conn.m input data are entered sufficiently.</span>
+<span class="keyword">if</span> size(conn,1) ~= n_ele
+    display (<span class="string">'Connectivity data are not compatible with the number of elements!'</span>);
+    <span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> size(supp,1) ~= tag_nd_orig
+    display (<span class="string">'Support data are not compatible with the number of nodes!'</span>);
+    <span class="keyword">return</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> size(nodal_disp,1) ~= tag_nd_orig
+    display (<span class="string">'Nodal displacement data are not compatible with the number of elements!'</span>);
+    <span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="comment">% checking loads with respect to the element type. No transverse or moment</span>
+<span class="comment">% loads on BAR element.</span>
+
+<span class="keyword">if</span> sum(abs(DL_ele(:,2))) ~= 0 || sum(abs(DL_ele(:,3))) ~= 0
+    <span class="keyword">for</span> i = 1:n_ele
+        <span class="keyword">if</span> ele_type(i) == 1
+            display (<span class="string">'Transverse load or moment is applied on Bar Element!'</span>);
+            <span class="keyword">return</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% check number of material IDs and element types. should be same as the number of elements</span>
+
+<span class="keyword">if</span> length(MAT_ID) ~= n_ele
+    display(<span class="string">'Material IDs are not the same as the number of elements!'</span>);
+    <span class="keyword">return</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> length(ele_type) ~= n_ele
+    display(<span class="string">'Element types entered are not the same as the number of elements!'</span>);
+    <span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="comment">% call material props from library [material.m]</span>
+[ele_mat] = material(MAT_ID);
+
+<span class="comment">% call mechanical props per section from library [sec_prop.m]</span>
+[I_ele, area_ele, areaS_ele] = sec_prop(ele_prop_ID, ele_num);
+
+<span class="comment">% Initialization for local stiffness matrix and eq. nodal load vec</span>
+Ke = zeros(n_ele,6,6);
+Ge = zeros(n_ele,6);
+
+<span class="comment">% LOOP OVER ELEMENTS. produce stiffness matrices and nodal loads</span>
+<span class="keyword">for</span> i = 1:n_ele
+    <span class="comment">% load</span>
+    [ge,ge_a,ge_b,idxb,idxa] = Eq_nd_ld(len_ele(i),DL_ele(i,:),conn(i,2:7));
+    <span class="comment">% stiffness matrix</span>
+    [Ke(i,:,:),Ge(i,:)] = stf_mat(len_ele(i),ele_mat(i,:),ele_type(i),area_ele(i),I_ele(i),areaS_ele(i),idxb,idxa,ge_a,ge_b,ge);
+<span class="keyword">end</span>
+
+<span class="comment">% transformation matrix</span>
+T = trans_mat(Theta);
+
+<span class="comment">% Boolean Matrix</span>
+be = bool(ele_st_nd,ele_end_nd,tag_nd,n_ele);
+
+<span class="comment">% Global Stiffness Matrix</span>
+K_glb = glb_stf(be,T,Ke,n_ele,n_nd);
+
+<span class="comment">% Global Loading Vector</span>
+P_glb = glb_ld(P,T,Ge,be,n_ele,n_nd,tag_nd);
+
+<span class="comment">% Impose Boundary Conditions</span>
+[K_fnl, P_fnl] = BC_adj(K_glb,P_glb,supp(:,2:4)',nodal_disp(:,2:4)');
+</pre><pre>     ------------------- P O S T  P R O C E S S --------------------%</pre><pre class="codeinput"><span class="comment">% solve governing equation for displacements</span>
+U = K_fnl\P_fnl;
+
+<span class="comment">% find nodal forces</span>
+F_c = K_glb*U - P_glb;
+
+<span class="comment">% displaying outputs (displacements and forces at each node)</span>
+<span class="comment">% NOTE that secondary nodes produced by meshing are not considered for display</span>
+
+disp(<span class="string">'------------- DISPLACEMENTS AT NODES -------------'</span>);
+fprintf(<span class="string">'\n'</span>)
+<span class="keyword">for</span> i = 1:length(tag_nd_orig);
+    disp([<span class="string">'X displacement at node '</span> num2str(i),<span class="string">' = '</span>, num2str(U((i-1)*3+1))]);
+    disp([<span class="string">'Y displacement at node '</span> num2str(i),<span class="string">' = '</span>, num2str(U((i-1)*3+2))]);
+    disp([<span class="string">'Z Rotation at node     '</span> num2str(i),<span class="string">' = '</span>, num2str(U((i-1)*3+3))]);
+    fprintf(<span class="string">'\n'</span>)
+<span class="keyword">end</span>
+
+disp(<span class="string">'------------- FORCES AT NODES -------------'</span>);
+fprintf(<span class="string">'\n'</span>)
+<span class="keyword">for</span> i = 1:length(tag_nd_orig);
+    disp([<span class="string">'X force at node '</span> num2str(i),<span class="string">' = '</span>, num2str(F_c((i-1)*3+1))]);
+    disp([<span class="string">'Y force at node '</span> num2str(i),<span class="string">' = '</span>, num2str(F_c((i-1)*3+2))]);
+    disp([<span class="string">'moment at node  '</span> num2str(i),<span class="string">' = '</span>, num2str(F_c((i-1)*3+3))]);
+    fprintf(<span class="string">'\n'</span>)
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">------------- DISPLACEMENTS AT NODES -------------
+
+X displacement at node 1 = 0
+Y displacement at node 1 = 0
+Z Rotation at node     1 = 0
+
+X displacement at node 2 = 0
+Y displacement at node 2 = 0
+Z Rotation at node     2 = -0.009129
+
+X displacement at node 3 = 0
+Y displacement at node 3 = -3.9772
+Z Rotation at node     3 = -0.0011938
+
+X displacement at node 4 = 0
+Y displacement at node 4 = 0
+Z Rotation at node     4 = 0.01211
+
+X displacement at node 5 = 0
+Y displacement at node 5 = 0
+Z Rotation at node     5 = -0.0057485
+
+------------- FORCES AT NODES -------------
+
+X force at node 1 = 0
+Y force at node 1 = -67204.6847
+moment at node  1 = -10816547.2083
+
+X force at node 2 = 0
+Y force at node 2 = 137548.551
+moment at node  2 = -7.4506e-09
+
+X force at node 3 = 0
+Y force at node 3 = 2.9104e-11
+moment at node  3 = 4.6566e-09
+
+X force at node 4 = 0
+Y force at node 4 = 286484.5434
+moment at node  4 = 1.4901e-08
+
+X force at node 5 = 0
+Y force at node 5 = -46828.4097
+moment at node  5 = 0
+
+Elements Locations:
+
+element 1 connects node 1 to node 2
+element 2 connects node 2 to node 3
+element 3 connects node 3 to node 4
+element 4 connects node 4 to node 5
+
+
+
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in ele_nodes (line 102)
+    Len(i) = sqrt((x(st_node(i))-x(end_node(i)))^2+(y(st_node(i))-y(end_node(i)))^2);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Main file
+clear; clc;
+
+%%
+%       REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- I N P U T REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-%
+
+% Commentary: In this section, the operator has to enter all required
+% inputs in three sub-functions: 'nodal_coordinate.m', 'ele_nodes.m' and
+% 'conn.m'. More descriptions on each inputs are provided on those files. 
+
+% nodal_coordinate calls all nodal coordinates and loads
+[tag_nd_orig, x_nd, y_nd, P] = nodal_coordinate();       % tag_nd_orig = node tags as the operator model (It may change if meshing happens)
+ele_num = [];                                            % an initial values needed for non-prismatic sections
+
+% There are also three more inputs that have to be entered in this file
+% (main.m). Those are material_ID, element_type and element_prop_ID which
+% call different properties from the built-in libraries. Notes on libraries
+% are provided in each of them. 
+% For each validation examples, corresponding inputs are prepared and the
+% operator just needs to uncomment them:
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH First Example REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% ele_num = 50;
+% material_ID = 2*ones(1,ele_num);              % Enter IDs using labels in 'material.m' (material library)
+% element_type = ones(1,ele_num);               % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)    
+% element_prop_ID = 3*ones(1,ele_num);          % Enter prop_ID labels from sec_prop.m (mechanical props library)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH Second Example REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% material_ID = [1,1];                          % Enter IDs using labels in 'material.m' (material library)
+% element_type = [21,21];                       % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)   
+% element_prop_ID = [4,4];                      % Enter prop_ID labels from sec_prop.m (mechanical props library)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH Third Example REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% material_ID = [3,3,3,3,3,3,3,3,3];            % Enter IDs using labels in 'material.m' (material library)                      
+% element_type = [2,2,2,2,2,2,2,2,2];           % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)   
+% element_prop_ID = [1,1,1,1,1,1,2,2,2];        % Enter prop_ID labels from sec_prop.m (mechanical props library)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH Fourth Example REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% material_ID = ones(13,1);                     % Enter IDs using labels in 'material.m' (material library)
+% element_type = 1*ones(13,1);                  % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)  
+% element_prop_ID = 5 * ones(13,1);             % Enter prop_ID labels from sec_prop.m (mechanical props library)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH Fifth Example REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+material_ID = [3,3,3,3];                        % Enter IDs using labels in 'material.m' (material library)
+element_type = [2,2,2,2];                       % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)     
+element_prop_ID = [2,2,2,2];                    % Enter prop_ID labels from sec_prop.m (mechanical props library)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH Sixth Example REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% material_ID = [3,3];                        % Enter IDs using labels in 'material.m' (material library)
+% element_type = [21,21];                       % Enter element types (1: BAR, 2: TIMOSHENKO, 3: BERNOULLI, 21: FEM-TIMO)     
+% element_prop_ID = [2,2];                    % Enter prop_ID labels from sec_prop.m (mechanical props library)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% The last part is the same for all examples
+
+% function conn.m calls all connectivities, nodal supports and nodal displacement
+[conn_o,supp,nodal_disp] = conn();  
+
+% print inputs up to this point:
+
+disp('REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH INPUTS REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-');
+fprintf('\n\n')
+disp('Nodal Coordinates:');
+fprintf('\n')
+for i = 1:length(tag_nd_orig)
+    disp(['node ',num2str(i),' : [',num2str(x_nd(i)),',',num2str(y_nd(i)),']']);
+end
+fprintf('\n\n')
+
+disp('Connectivity:');
+fprintf('\n')
+disp('element i : [x1  y1  rot1  x2  y2  rot2]; 1 if connected and 0 if not')
+fprintf('\n')
+for i = 1:length(material_ID)
+    disp(['element ',num2str(i),' : [',num2str(conn_o(i,2:7)),']']);
+end
+fprintf('\n\n')
+
+disp('Constraints:');
+fprintf('\n')
+disp('node i contrains: [x y rot]; 1 if yes and 0 if no')
+fprintf('\n')
+for i = 1:length(tag_nd_orig)
+    disp(['node ',num2str(i),' constraints: ',num2str(supp(i,2:end))]);
+end
+fprintf('\n\n')
+
+disp('Nodal Displacements:');
+fprintf('\n')
+disp('node i displacements: [dx dy drot]; enter values if any')
+fprintf('\n')
+for i = 1:length(tag_nd_orig)
+    disp(['node ',num2str(i),' displacements: ',num2str(nodal_disp(i,2:end))]);
+end
+fprintf('\n\n')
+
+disp('Material IDs: (material definitions can be found in material.m file)');
+fprintf('\n')
+disp('element i material ID : ID number')
+fprintf('\n')
+for i = 1:length(material_ID)
+    disp(['element ',num2str(i),' material ID : ',num2str(material_ID(i))]);
+end
+fprintf('\n\n')
+
+disp('Element types: (1 if BAR / 2 if TIMOSHENKO / 3 if BERNOULLI / 21 if FE TIMO LINEAR SF)');
+fprintf('\n')
+disp('element i type : type label')
+fprintf('\n')
+for i = 1:length(material_ID)
+    disp(['element ',num2str(i),' type : ',num2str(element_type(i))]);
+end
+fprintf('\n\n')
+
+disp('Element Section Property ID');
+fprintf('\n')
+disp('element i section ID : (section definitions can be found in sec_prop.m file)')
+fprintf('\n')
+for i = 1:length(material_ID)
+    disp(['element ',num2str(i),' section ID : ',num2str(element_type(i))]);
+end
+fprintf('\n\n')
+
+% function ele_nodes has different parts inside. 1) load start and end
+% nodes for each element, name elements and find lengths and angles for
+% each of them. 2) If Finite Elements is chosen, it meshes large elements
+% automatically. Notet that for meshing, a max mesh length should be
+% entered in the ele_nodes.m file.
+
+[tag_ele,tag_nd,ele_st_nd,ele_end_nd,len_ele,ele_prop_ID,DL_ele,ele_type,MAT_ID,conn,Theta] ...
+    = ele_nodes(x_nd, y_nd, element_type,material_ID,conn_o,element_prop_ID); 
+
+%%
+%       REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- A N A L Y S I S REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-%
+
+% store number of nodes and elements (it is done after meshing)
+n_nd = length(tag_nd);
+n_ele = length(tag_ele);
+
+
+%% 
+%       REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- C H E C K S REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH%
+
+% check if conn.m input data are entered sufficiently.
+if size(conn,1) ~= n_ele
+    display ('Connectivity data are not compatible with the number of elements!');
+    return
+end
+
+if size(supp,1) ~= tag_nd_orig
+    display ('Support data are not compatible with the number of nodes!');
+    return
+end
+if size(nodal_disp,1) ~= tag_nd_orig
+    display ('Nodal displacement data are not compatible with the number of elements!');
+    return
+end
+
+% checking loads with respect to the element type. No transverse or moment
+% loads on BAR element.
+
+if sum(abs(DL_ele(:,2))) ~= 0 || sum(abs(DL_ele(:,3))) ~= 0 
+    for i = 1:n_ele
+        if ele_type(i) == 1
+            display ('Transverse load or moment is applied on Bar Element!');
+            return
+        end
+    end
+end
+
+% check number of material IDs and element types. should be same as the number of elements
+
+if length(MAT_ID) ~= n_ele
+    display('Material IDs are not the same as the number of elements!');
+    return
+end
+if length(ele_type) ~= n_ele
+    display('Element types entered are not the same as the number of elements!');
+    return
+end
+
+% call material props from library [material.m]
+[ele_mat] = material(MAT_ID);
+
+% call mechanical props per section from library [sec_prop.m]
+[I_ele, area_ele, areaS_ele] = sec_prop(ele_prop_ID, ele_num);  
+
+% Initialization for local stiffness matrix and eq. nodal load vec
+Ke = zeros(n_ele,6,6);
+Ge = zeros(n_ele,6);
+
+% LOOP OVER ELEMENTS. produce stiffness matrices and nodal loads
+for i = 1:n_ele
+    % load
+    [ge,ge_a,ge_b,idxb,idxa] = Eq_nd_ld(len_ele(i),DL_ele(i,:),conn(i,2:7)); 
+    % stiffness matrix
+    [Ke(i,:,:),Ge(i,:)] = stf_mat(len_ele(i),ele_mat(i,:),ele_type(i),area_ele(i),I_ele(i),areaS_ele(i),idxb,idxa,ge_a,ge_b,ge);
+end
+
+% transformation matrix
+T = trans_mat(Theta);
+
+% Boolean Matrix
+be = bool(ele_st_nd,ele_end_nd,tag_nd,n_ele);
+    
+% Global Stiffness Matrix
+K_glb = glb_stf(be,T,Ke,n_ele,n_nd);
+
+% Global Loading Vector
+P_glb = glb_ld(P,T,Ge,be,n_ele,n_nd,tag_nd);
+
+% Impose Boundary Conditions
+[K_fnl, P_fnl] = BC_adj(K_glb,P_glb,supp(:,2:4)',nodal_disp(:,2:4)');
+
+%%       
+%       REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- P O S T  P R O C E S S REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH%
+
+% solve governing equation for displacements
+U = K_fnl\P_fnl;
+
+% find nodal forces
+F_c = K_glb*U - P_glb;
+
+% displaying outputs (displacements and forces at each node)
+% NOTE that secondary nodes produced by meshing are not considered for display
+
+disp('REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- DISPLACEMENTS AT NODES REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-');
+fprintf('\n')
+for i = 1:length(tag_nd_orig);
+    disp(['X displacement at node ' num2str(i),' = ', num2str(U((i-1)*3+1))]);
+    disp(['Y displacement at node ' num2str(i),' = ', num2str(U((i-1)*3+2))]);
+    disp(['Z Rotation at node     ' num2str(i),' = ', num2str(U((i-1)*3+3))]);
+    fprintf('\n')
+end
+
+disp('REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- FORCES AT NODES REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-');
+fprintf('\n')
+for i = 1:length(tag_nd_orig);
+    disp(['X force at node ' num2str(i),' = ', num2str(F_c((i-1)*3+1))]);
+    disp(['Y force at node ' num2str(i),' = ', num2str(F_c((i-1)*3+2))]);
+    disp(['moment at node  ' num2str(i),' = ', num2str(F_c((i-1)*3+3))]);
+    fprintf('\n')
+end
+
+
+
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>
